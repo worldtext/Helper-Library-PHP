@@ -1,9 +1,9 @@
 {
-    "name": "world-text/php",
+    "name": "world-text/world-text",
     "type": "library",
     "description": "PHP Helper library for World-Text API",
     "keywords": ["world","text","worldtext","sms","api"],
-    "homepage": "http://github.com/m-r-h/World-Text-SMS",
+    "homepage": "http://github.com/m-r-h/World-Text-PHP",
     "license": "MIT",
     "authors": [
         {
