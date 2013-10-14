@@ -21,7 +21,7 @@ class WorldTextSms extends WorldText {
 	// SMS Methods...
 
 
-	public function send($dst, $txt, $multipart = NULL) {
+	public function send($dst, $txt, $src = NULL, $multipart = NULL) {
 		$data = array(
 			'dstaddr' => $dst,
 			'txt' => $txt
@@ -30,6 +30,10 @@ class WorldTextSms extends WorldText {
 		// Uincode/UTF8 test
 		if (WorldText::isUTF8($txt)) {
 			$data = array_merge($data, array('enc' => "UnicodeBigUnmarked"));
+		}
+
+		if ($src !== NULL) {
+			$data = array_merge($data, array('srcaddr' => $src));
 		}
 
 		if ($multipart) {

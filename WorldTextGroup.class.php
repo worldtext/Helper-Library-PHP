@@ -173,15 +173,20 @@ class WorldTextGroup extends WorldText {
 		return( $this->callResource(self::GET, '/group/cost', array('grpid' => $this->groupID)));
 	}
 
-	// Send a single message to group ... 
+	// Send a message to group ... 
 
-	public function send($msg, $src = NULL) {
+	public function send($msg, $src = NULL, $multipart = NULL) {
 		$data = array(
 			'grpid' => $this->groupID,
 			'txt' => $msg
 		);
+
 		if ($src !== NULL) {
 			$data = array_merge($data, array('srcaddr' => $src));
+		}
+
+		if ($multipart) {
+			$data = array_merge($data, array('multipart' => $multipart));
 		}
 
 		// Unicode/UTF8 test

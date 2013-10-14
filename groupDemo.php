@@ -121,6 +121,18 @@ try {
 	echo $ex->getDesc() . "\n";
 }
 
+print "<br />group/send Multipart, but default sender...<br>";
+try {
+	// Must be allocated to the account in use, or the default sender ID will be used...
+	$info = $group->send(" 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789", NULL, 2);
+} catch (wtException $ex) {
+	echo "<pre>";
+	echo $ex->getCode() . "\n";
+	echo $ex->getMessage() . "\n";
+	echo $ex->getError() . "\n";
+	echo $ex->getDesc() . "\n";
+}
+
 print "<br />group/send UTF8: <br />";
 try {
 	$info = $group->send("Hey 汉语/漢語  华语/華語 中文");
