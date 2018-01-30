@@ -11,9 +11,6 @@ your project hierarchy and then include the library file:
 
     require_once('/path/World-Text-PHP/WorldText.php');
 
-[Click here to download a ZIP of the source] (https://github.com/m-r-h/World-Text-PHP/zipball/master) which includes all
-dependencies.
-
 
 
 ## API Documentation
