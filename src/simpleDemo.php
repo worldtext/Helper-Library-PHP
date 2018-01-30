@@ -1,4 +1,5 @@
 <?php
+namespace WorldText;
 
 // Simple demo of World Text Helper classes...
 //

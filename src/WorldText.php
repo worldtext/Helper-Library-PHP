@@ -1,4 +1,5 @@
 <?php
+namespace WorldText;
 
 require_once 'WorldTextSms.class.php';
 require_once 'WorldTextGroup.class.php';

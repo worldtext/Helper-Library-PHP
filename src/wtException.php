@@ -1,4 +1,5 @@
 <?php
+namespace WorldText;
 
 /*
  * Extend Exception, adding status and desc fields...

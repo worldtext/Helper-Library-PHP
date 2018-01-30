@@ -1,4 +1,5 @@
 <?php
+namespace WorldText;
 
 class WorldTextSms extends WorldText {
 

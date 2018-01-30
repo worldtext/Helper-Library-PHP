@@ -1,4 +1,5 @@
 <?php
+namespace WorldText;
 
 class WorldTextAdmin extends WorldText {
 
