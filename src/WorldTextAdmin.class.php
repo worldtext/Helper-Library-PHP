@@ -7,7 +7,7 @@ class WorldTextAdmin extends WorldText {
 // @param $apiKey   secret API Key
 	//
 
-	private function __construct($id, $apiKey) {
+	public function __construct($id, $apiKey) {
 		$this->id = $id;
 		$this->apiKey = $apiKey;
 		parent::__construct($id, $apiKey);

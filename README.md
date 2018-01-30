@@ -53,14 +53,14 @@ require_once('/path/World-Text-PHP/WorldText.php');
 // Replace id and apiKey with values from http://www.world-text.com/account/
 // ...and the mobile number with a valid one in international format
 
-$id = "XXXXXX";     // Your Account ID
-$apiKey = "XXXXXX"; // Your secret API Key
+$id = "XXXXXX";        // Your Account ID
+$apiKey = "XXXXXX";    // Your secret API Key
 
-$sms = WorldTextSms::CreateSmsInstance(id, apiKey);
+$sms = WorldText\WorldTextSms::CreateSmsInstance($id, $apiKey);
 
 try {
     $info = $sms->send("447989000000", "Example message");
-} catch (wtException $e) {
+} catch (WorldText\wtException $e) {
     echo 'Caught exception: ', $e->getMessage(), "\n";
 }
 

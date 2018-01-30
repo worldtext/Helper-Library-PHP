@@ -5,6 +5,8 @@ namespace WorldText;
  * Extend Exception, adding status and desc fields...
  */
 
+use Exception;
+
 class wtException extends Exception {
 
 	protected $status;

@@ -1,19 +1,21 @@
 <?php
 namespace WorldText;
 
+
+use Exception;
+
+
 class WorldTextGroup extends WorldText {
 
 	private $groupID;
 	private $numbers;
 	private $numberCount = NULL; // NULL not called, 0 empty, # number of rows.
 	private $retries = 0;  // Instant fail on error
-	private $apiKey = '';
-	private $id = '';
 
-// **
-// @param $id       World Text Account ID
-// @param $apiKey   secret API Key
-// @param $grpName  Group - created or loaded on construction.
+    // **
+    // @param $id       World Text Account ID
+    // @param $apiKey   secret API Key
+    // @param $grpName  Group - created or loaded on construction.
 
 	public function __construct($id, $apiKey, $grpName, $srcAddr = NULL, $pin = NULL) {
 

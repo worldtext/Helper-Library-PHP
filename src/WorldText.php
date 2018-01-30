@@ -28,8 +28,8 @@ class WorldText {
 
 	private $apiVersion = '2.0.0';
 	private $apiState = 'dev';
-	private $apiKey = '';
-	private $id = '';
+	protected $apiKey = '';
+    protected $id = '';
 	private $simulate = '';
 	private $protocol = '';
 	private $host = 'sms1.world-text.com';
