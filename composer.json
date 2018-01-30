@@ -3,13 +3,13 @@
     "type": "library",
     "description": "PHP Helper library for World-Text API",
     "keywords": ["world","text","worldtext","sms","api"],
-    "homepage": "http://github.com/m-r-h/World-Text-PHP",
+    "homepage": "http://github.com/nevissystems/Helper-Library-PHP",
     "license": "MIT",
     "authors": [
         {
             "name": "Matt Holmes",
-            "email": "matt.holmes@world-text.com",
-            "homepage": "http://mattholmes.co.uk"
+            "email": "support@world-text.com",
+            "homepage": "https://www.world-text.com"
         }
     ],
     "require": {
