@@ -1,203 +1,273 @@
 <?php
-namespace WorldText;
 
+namespace WorldText;
 
 use Exception;
 
 
-class WorldTextGroup extends WorldText {
+/**
+ * Class WorldTextGroup
+ * @package WorldText
+ */
+class WorldTextGroup extends WorldText
+{
 
-	private $groupID;
-	private $numbers;
-	private $numberCount = NULL; // NULL not called, 0 empty, # number of rows.
-	private $retries = 0;  // Instant fail on error
+    private $groupID;
+    private $numbers;
+    private $numberCount = NULL; // NULL not called, 0 empty, # number of rows.
+    private $retries = 0;  // Instant fail on error
 
-    // **
-    // @param $id       World Text Account ID
-    // @param $apiKey   secret API Key
-    // @param $grpName  Group - created or loaded on construction.
+    /**
+     * WorldTextGroup constructor.
+     * @param $id World Text Account ID
+     * @param $apiKey API Key
+     * @param $grpName Group - created or loaded on construction.
+     * @param null $srcAddr
+     * @param null $pin
+     * @throws Exception
+     * @throws wtException
+     */
+    public function __construct($id, $apiKey, $grpName, $srcAddr = NULL, $pin = NULL)
+    {
 
-	public function __construct($id, $apiKey, $grpName, $srcAddr = NULL, $pin = NULL) {
+        parent::__construct($id, $apiKey);
 
-		parent::__construct($id, $apiKey);
+        if ($srcAddr) {
+            // Creating...
+            $this->groupID = $this->create($grpName, $srcAddr, $pin); //$grp = newGroup
+        } else {
 
-		if ($srcAddr) {
-			// Creating...
-			$this->groupID = $this->create($grpName, $srcAddr, $pin); //$grp = newGroup
-		} else {
+            $grp = $this->find($grpName);
 
-			$grp = $this->find($grpName);
+            if (!$grp) {
+                throw new Exception('No pre-existing group');
+            } else {
+                $this->groupID = $grp;
 
-			if (!$grp) {
-				throw new Exception('No pre-existing group');
-			} else {
-				$this->groupID = $grp;
+                // Populate the group with its numbers...
+                $this->details();
+            }
+        }
+    }
 
-				// Populate the group with its numbers...
-				$this->details();
-			}
-		}
-	}
+    /**
+     * @param $id
+     * @param $apiKey
+     * @param $grpName
+     * @param $srcAddr
+     * @param $pin
+     * @return WorldTextGroup
+     * @throws Exception
+     * @throws wtException
+     */
+    static public function CreateNewGroupInstance($id, $apiKey, $grpName, $srcAddr, $pin)
+    {
+        return new WorldTextGroup($id, $apiKey, $grpName, $srcAddr, $pin);
+    }
 
-	// Static Factory Methods...
+    /**
+     * @param $id
+     * @param $apiKey
+     * @param $grpName
+     * @return WorldTextGroup
+     * @throws Exception
+     * @throws wtException
+     */
+    static public function CreateExistingGroupInstance($id, $apiKey, $grpName)
+    {
+        return new WorldTextGroup($id, $apiKey, $grpName, NULL, NULL);
+    }
 
-	static public function CreateNewGroupInstance($id, $apiKey, $grpName, $srcAddr, $pin) {
-		return new WorldTextGroup($id, $apiKey, $grpName, $srcAddr, $pin);
-	}
+    // The following Group Methods are Only meaningful after
+    // Construction with no group name parameter or After a destroy call
 
-	static public function CreateExistingGroupInstance($id, $apiKey, $grpName) {
-		return new WorldTextGroup($id, $apiKey, $grpName, NULL, NULL);
-	}
+    /**
+     * @param $grpName
+     * @param $srcAddr
+     * @param $pin
+     * @return mixed
+     * @throws Exception
+     * @throws wtException
+     */
+    public function create($grpName, $srcAddr, $pin)
+    {
 
-	// Group Methods ...
-	// Only meaningful after
-	// Construction with no group name parameter
-	// or
-	// After a destroy call
+        if ($this->groupID) {
+            // Bad dog, no biscuit...
+            throw new Exception('Already have an active group - object must have no group set');
+        }
 
-	public function create($grpName, $srcAddr, $pin) {
+        $data = array(
+            'name' => $grpName,
+            'srcaddr' => $srcAddr,
+            'pin' => $pin
+        );
 
-		if ($this->groupID) {
-			// Bad dog, no biscuit...
-			throw new Exception('Already have an active group - object must have no group set');
-		}
+        $ret = $this->callResource(self::PUT, '/group/create', $data);
 
-		$data = array(
-			'name' => $grpName,
-			'srcaddr' => $srcAddr,
-			'pin' => $pin
-		);
+        return $ret['data']['groupid'];
+    }
 
-		$ret = $this->callResource(self::PUT, '/group/create', $data);
+    /**
+     * Return an ID from name of Group, or NULL if not exist...
+     * @param $searchGrp
+     * @return null
+     * @throws wtException
+     */
+    public function find($searchGrp)
+    {
+        $ret = $this->callResource(self::GET, '/group/list');
 
-		return $ret['data']['groupid'];
-	}
+        for ($i = 0; $i < count($ret['data']['group']); $i++) {
+            if ($searchGrp == $ret['data']['group'][$i]['name']) {
+                return $ret['data']['group'][$i]['id'];
+            }
+        }
+        return NULL;
+    }
 
-	// Return an ID from name of Group, or NULL if not exist...
+    /**
+     * Kill the active group on the World Text servers...
+     * All group related object data is cleared after successful call:
+     * @throws wtException
+     */
+    public function destroy()
+    {
 
-	public function find($searchGrp) {
-		$ret = $this->callResource(self::GET, '/group/list');
+        $data = array(
+            'grpid' => $this->groupID
+        );
 
-		for ($i = 0; $i < count($ret['data']['group']); $i++) {
-			if ($searchGrp == $ret['data']['group'][$i]['name']) {
-				return $ret['data']['group'][$i]['id'];
-			}
-		}
-		return NULL;
-	}
+        $ret = $this->callResource(self::DELETE, '/group/destroy', $data);
 
-	// Kill the group on the World Text servers...
-	//
-    // All group related object data is cleared after successful call:
-	// 
-	// Create new group and populate it, or
-	// Create a new object
-	// 
-	// ...to continue.
+        // Best check it worked first :)
+        // Make sure people can't continue treating the group as active...
+        unset($this->numbers);
+        unset($this->groupID);
+        $this->numberCount = NULL;
+    }
 
-	public function destroy() {
+    /**
+     * @param $name
+     * @param $number
+     * @return array
+     * @throws wtException
+     */
+    public function entry($name, $number)
+    {
+        $data = array(
+            'grpid' => $this->groupID,
+            'name' => $name,
+            'dstaddr' => $number
+        );
 
-		$data = array(
-			'grpid' => $this->groupID
-		);
+        return $this->callResource(self::PUT, '/group/entry', $data);
+    }
 
-		$ret = $this->callResource(self::DELETE, '/group/destroy', $data);
+    /**
+     * @param $list
+     * @return array
+     * @throws wtException
+     */
+    public function entries($list)
+    {
+        $data = array(
+            'members' => $list
+        );
 
-		// Best check it worked first :)
-		// Make sure people can't continue treating the group as active...
-		unset($this->numbers);
-		unset($this->groupID);
-		$this->numberCount = NULL;
-	}
+        return $this->callResource(self::PUT, '/group/entries', $data);
+    }
 
-	public function entry($name, $number) {
-		$data = array(
-			'grpid' => $this->groupID,
-			'name' => $name,
-			'dstaddr' => $number
-		);
+    //
 
-		return $this->callResource(self::PUT, '/group/entry', $data);
-	}
+    /**
+     * Return the array of names/numbers in this group.
+     * If we don't already have the list, populate it.
+     * @return null on error or array of names/numbers
+     * @throws wtException
+     */
+    public function details()
+    {
 
-	public function entries($list) {
-		$data = array(
-			'members' => $list
-		);
+        if (isset($this->numberCount)) {
+            // Already got group contents, so just return the list...
+            return ($this->numbers);
+        }
 
-		return $this->callResource(self::PUT, '/group/entries', $data);
-	}
+        $data = array(
+            'grpid' => $this->groupID
+        );
 
-	// Return the array of names/numbers in this group...
-	//
-    // If we don't already have the list, populate it.
+        $ret = $this->callResource(self::GET, '/group/details', $data);
+        if ($ret['http_code'] == 200) {
+            // HTTP OK...
+            $this->numberCount = count($ret['data']['entry']);
 
-	public function details() {
+            // OK, but empty...
+            if (!$this->numberCount)
+                return NULL;
 
-		if (isset($this->numberCount)) {
-			// Already got group contents, so just return the list...
-			return( $this->numbers );
-		}
+            foreach ($ret['data']['entry'] as $val) {
+                $this->numbers[$val['number']] = $val['name'];
+            }
 
-		$data = array(
-			'grpid' => $this->groupID
-		);
+            return $this->numbers;
+        } else {
+            // HTTP fail...
+            $this->lastError = $ret;
+            return NULL;
+        }
+    }
 
-		$ret = $this->callResource(self::GET, '/group/details', $data);
-		if ($ret['http_code'] == 200) {
-			// HTTP OK...
-			$this->numberCount = count($ret['data']['entry']);
+    /**
+     * Empties the group of names and numbers
+     * @return array
+     * @throws wtException
+     */
+    public function deleteContents()
+    {
+        return ($this->callResource(self::DELETE, '/group/contents'));
+    }
 
-			// OK, but empty...
-			if (!$this->numberCount)
-				return NULL;
+    /**
+     * Returns cost in credits to send this group
+     * @return array
+     * @throws wtException
+     */
+    public function cost()
+    {
+        return ($this->callResource(self::GET, '/group/cost', array('grpid' => $this->groupID)));
+    }
 
-			foreach ($ret['data']['entry'] as $val) {
-				$this->numbers[$val['number']] = $val['name'];
-			}
+    /**
+     * Send a message to group
+     * @param $msg
+     * @param null $src
+     * @param null $multipart
+     * @return array
+     * @throws wtException
+     */
+    public function send($msg, $src = NULL, $multipart = NULL)
+    {
+        $data = array(
+            'grpid' => $this->groupID,
+            'txt' => $msg
+        );
 
-			return $this->numbers;
-		} else {
-			// HTTP fail...
-			$this->lastError = $ret;
-			return NULL;
-		}
-	}
+        if ($src !== NULL) {
+            $data = array_merge($data, array('srcaddr' => $src));
+        }
 
-	// Empties the group of names and numbers...
+        if ($multipart) {
+            $data = array_merge($data, array('multipart' => $multipart));
+        }
 
-	public function deleteContents() {
-		return( $this->callResource(self::DELETE, '/group/contents') );
-	}
+        // Unicode/UTF8 test
+        if (WorldText::isUTF8($msg)) {
+            $data = array_merge($data, array('enc' => "UnicodeBigUnmarked"));
+        }
 
-	// Returns cost in credits to send this group...
-
-	public function cost() {
-		return( $this->callResource(self::GET, '/group/cost', array('grpid' => $this->groupID)));
-	}
-
-	// Send a message to group ... 
-
-	public function send($msg, $src = NULL, $multipart = NULL) {
-		$data = array(
-			'grpid' => $this->groupID,
-			'txt' => $msg
-		);
-
-		if ($src !== NULL) {
-			$data = array_merge($data, array('srcaddr' => $src));
-		}
-
-		if ($multipart) {
-			$data = array_merge($data, array('multipart' => $multipart));
-		}
-
-		// Unicode/UTF8 test
-		if (WorldText::isUTF8($msg)) {
-			$data = array_merge($data, array('enc' => "UnicodeBigUnmarked"));
-		}
-
-		return $this->callResource(self::PUT, '/group/send', $data);
-	}
+        return $this->callResource(self::PUT, '/group/send', $data);
+    }
 
 }

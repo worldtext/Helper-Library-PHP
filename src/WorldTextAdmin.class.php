@@ -1,35 +1,63 @@
 <?php
+
 namespace WorldText;
 
-class WorldTextAdmin extends WorldText {
 
-	// @param $id       World Text Account ID
-// @param $apiKey   secret API Key
-	//
+/**
+ * Class WorldTextAdmin
+ * @package WorldText
+ */
+class WorldTextAdmin extends WorldText
+{
 
-	public function __construct($id, $apiKey) {
-		$this->id = $id;
-		$this->apiKey = $apiKey;
-		parent::__construct($id, $apiKey);
-	}
+    /**
+     * WorldTextAdmin constructor.
+     * @param $id World Text Account ID
+     * @param $apiKey API Key
+     */
+    public function __construct($id, $apiKey)
+    {
+        $this->id = $id;
+        $this->apiKey = $apiKey;
+        parent::__construct($id, $apiKey);
+    }
 
-	// Static Factory Method...
+    /**
+     * Static Factory Method.
+     * @param $id
+     * @param $apiKey
+     * @return WorldTextAdmin
+     */
+    public static function CreateAdminInstance($id, $apiKey)
+    {
+        return new WorldTextAdmin($id, $apiKey);
+    }
 
-	public static function CreateAdminInstance($id, $apiKey) {
-		return new WorldTextAdmin($id, $apiKey);
-	}
+    /**
+     * @return array
+     * @throws wtException
+     */
+    public function ping()
+    {
+        return $this->callResource(self::GET, '/admin/ping');
+    }
 
-	// Admin Methods...
-	public function ping() {
-		return $this->callResource(self::GET, '/admin/ping');
-	}
+    /**
+     * @return array
+     * @throws wtException
+     */
+    public function host()
+    {
+        return $this->callResource(self::GET, '/admin/host');
+    }
 
-	public function host() {
-		return $this->callResource(self::GET, '/admin/host');
-	}
-
-	public function credits() {
-		return $this->callResource(self::GET, '/admin/credits');
-	}
+    /**
+     * @return array
+     * @throws wtException
+     */
+    public function credits()
+    {
+        return $this->callResource(self::GET, '/admin/credits');
+    }
 
 }

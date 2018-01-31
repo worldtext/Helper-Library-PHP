@@ -1,69 +1,100 @@
 <?php
+
 namespace WorldText;
 
-class WorldTextSms extends WorldText {
 
-	// @param $id       World Text Account ID
-	// @param $apiKey   secret API Key
-	//
+/**
+ * Class WorldTextSms
+ * @package WorldText
+ */
+class WorldTextSms extends WorldText
+{
 
-    public function __construct($id, $apiKey) {
-		$this->id = $id;
-		$this->apiKey = $apiKey;
-		parent::__construct($id, $apiKey);
-	}
+    /**
+     * WorldTextSms constructor.
+     * @param $id World Text Account ID
+     * @param $apiKey API Key
+     */
+    public function __construct($id, $apiKey)
+    {
+        $this->id = $id;
+        $this->apiKey = $apiKey;
+        parent::__construct($id, $apiKey);
+    }
 
-	// Static Factory Method...
+    /**
+     * @param $id World Text Account ID
+     * @param $apiKey API Key
+     * @return WorldTextSms
+     */
+    public static function CreateSmsInstance($id, $apiKey)
+    {
+        return new WorldTextSms($id, $apiKey);
+    }
 
-	public static function CreateSmsInstance($id, $apiKey) {
-		return new WorldTextSms($id, $apiKey);
-	}
+    /**
+     * @param $dst
+     * @param $txt
+     * @param null $src
+     * @param null $multipart
+     * @return mixed
+     * @throws wtException
+     */
+    public function send($dst, $txt, $src = NULL, $multipart = NULL)
+    {
+        $data = array(
+            'dstaddr' => $dst,
+            'txt' => $txt
+        );
 
-	// SMS Methods...
+        // Unicode/UTF8 test
+        if (WorldText::isUTF8($txt)) {
+            $data = array_merge($data, array('enc' => "UnicodeBigUnmarked"));
+        }
 
+        if ($src !== NULL) {
+            $data = array_merge($data, array('srcaddr' => $src));
+        }
 
-	public function send($dst, $txt, $src = NULL, $multipart = NULL) {
-		$data = array(
-			'dstaddr' => $dst,
-			'txt' => $txt
-		);
+        if ($multipart) {
+            $data = array_merge($data, array('multipart' => $multipart));
+        }
 
-		// Uincode/UTF8 test
-		if (WorldText::isUTF8($txt)) {
-			$data = array_merge($data, array('enc' => "UnicodeBigUnmarked"));
-		}
+        try {
+            $returned = $this->callResource(self::PUT, '/sms/send', $data);
+        } catch (wtException $ex) {
+            throw $ex;
+        }
 
-		if ($src !== NULL) {
-			$data = array_merge($data, array('srcaddr' => $src));
-		}
+        return ($returned['data']['message']);
+    }
 
-		if ($multipart) {
-			$data = array_merge($data, array('multipart' => $multipart));
-		}
+    /**
+     * @param $msgID
+     * @return array
+     * @throws wtException
+     */
+    public function query($msgID)
+    {
+        $data = array(
+            'msgid' => $msgID
+        );
 
-		try {
-			$returned = $this->callResource(self::PUT, '/sms/send', $data);
-		} catch (wtException $ex) {
-			throw $ex;
-		}
+        return ($this->callResource(self::GET, '/sms/query', $data));
+    }
 
-		return ( $returned['data']['message'] );
-	}
+    /**
+     * @param $dst
+     * @return array
+     * @throws wtException
+     */
+    public function cost($dst)
+    {
+        $data = array(
+            'dstaddr' => $dst
+        );
 
-	public function query($msgID) {
-		$data = array(
-			'msgid' => $msgID
-		);
-
-		return($this->callResource(self::GET, '/sms/query', $data));
-	}
-
-	public function cost($dst) {
-		$data = array(
-			'dstaddr' => $dst
-		);
-
-		return($this->callResource(self::GET, '/sms/cost', $data) );
-	}
+        return ($this->callResource(self::GET, '/sms/cost', $data));
+    }
 
 }

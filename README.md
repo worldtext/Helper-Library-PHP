@@ -49,13 +49,15 @@ to get the details on the classes and methods, and how to get started with
 // You make need to alter the path based on your install location
 require __DIR__ . '/worldtext/php-helper/vendor/autoload.php';
 
-// Replace id and apiKey with values from http://www.world-text.com/account/
+// Replace id and apiKey with values from https://www.world-text.com/account/#/api
 $account_id = "XXXXXX"; 
 $api_key = "XXXXXX"; 
 
 $sms = \WorldText\WorldTextSms::CreateSmsInstance($account_id, $api_key);
 
-$dest_addr = "447980000000";  // Valid international format mobile number
+// Valid international format mobile number
+$dest_addr = "447980000000";  
+
 try {
     $info = $sms->send($dest_addr, "Example message");
 } catch (\WorldText\wtException $e) {
