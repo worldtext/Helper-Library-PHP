@@ -118,9 +118,14 @@ class WorldTextGroup extends WorldText
     {
         $ret = $this->callResource(self::GET, '/group/list');
 
-        for ($i = 0; $i < count($ret['data']['group']); $i++) {
-            if ($searchGrp == $ret['data']['group'][$i]['name']) {
-                return $ret['data']['group'][$i]['id'];
+        $groups = $ret['data']['group'] ?? array();
+        if (!is_array($groups) || !$groups) {
+            return NULL;
+        }
+
+        for ($i = 0; $i < count($groups); $i++) {
+            if ($searchGrp == $groups[$i]['name']) {
+                return $groups[$i]['id'];
             }
         }
         return NULL;
@@ -201,13 +206,17 @@ class WorldTextGroup extends WorldText
         $ret = $this->callResource(self::GET, '/group/details', $data);
         if ($ret['http_code'] == 200) {
             // HTTP OK...
-            $this->numberCount = count($ret['data']['entry']);
+            $entries = $ret['data']['entry'] ?? array();
+            if (!is_array($entries)) {
+                $entries = array();
+            }
+            $this->numberCount = count($entries);
 
             // OK, but empty...
             if (!$this->numberCount)
                 return NULL;
 
-            foreach ($ret['data']['entry'] as $val) {
+            foreach ($entries as $val) {
                 $this->numbers[$val['number']] = $val['name'];
             }
 
