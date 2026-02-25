@@ -7,6 +7,7 @@ PHP Helper Library for World Text SMS Text Messaging
 You can install **Helper-Library-PHP** by downloading the source, cloning
 the github repository or by requiring or via [composer](https://getcomposer.org).
 If using composer please ensure you use version **0.2.0** or greater.
+This library requires PHP **8.0+**.
 
 Once you have downloaded the library, put the World-Text-PHP folder into
 your project hierarchy and then include the library file:
@@ -73,7 +74,7 @@ try {
 
 ## Prerequisites
 
-* PHP >= 5.2.3
+* PHP >= 8.0
 
 ## Feedback, Ideas and Issues
 
